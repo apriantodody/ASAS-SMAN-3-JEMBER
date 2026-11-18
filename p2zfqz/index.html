@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="id"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
-<meta name="robots" content="noindex,nofollow"><title>ASAS Pendidikan Agama Islam Kelas XI</title>
+<meta name="robots" content="noindex,nofollow"><title>PSAS Pendidikan Agama Islam Kelas XI</title>
 <style>
 :root{color-scheme:light}*{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
@@ -22,6 +22,7 @@ main{padding:10px}
 .petunjuk{font-weight:bold;margin:.2em 0 .6em}
 .sheet img.fig{display:block;height:auto;max-width:100%;margin:.5em auto;cursor:zoom-in}
 .tw{overflow-x:auto;margin:.6em 0}
+.sheet img.fig.eqi{display:inline-block;vertical-align:middle;margin:.25em .05em}.eqrow{white-space:nowrap;text-align:center;overflow-x:auto;margin:.3em 0}.eqrow .dot{font-size:1.5em;font-weight:bold;vertical-align:middle;padding:0 .15em}
 table.box{width:100%}table.box td{background:#f4f6f9;text-align:left;font-weight:normal;padding:9px 11px}table.box p{margin:.3em 0}
 .sheet table{border-collapse:collapse;font-size:.92em;min-width:100%}
 .sheet td,.sheet th{border:1px solid #9aa5b4;padding:5px 7px;vertical-align:top}.sheet th{background:#e8edf4}
@@ -31,7 +32,7 @@ table.box{width:100%}table.box td{background:#f4f6f9;text-align:left;font-weight
 #lb button{position:fixed;top:10px;right:10px;z-index:21;background:#fff;border:0;border-radius:6px;padding:8px 14px;font-size:15px}
 footer{text-align:center;font-size:.72em;color:#556;padding:6px 10px 26px}
 </style></head><body>
-<header><h1>Asesmen Sumatif Akhir Semester Ganjil 2026/2027</h1>
+<header><h1>Penilaian Sumatif Akhir Semester Ganjil 2026/2027</h1>
 <p>Pendidikan Agama Islam &middot; Kelas XI &middot; 90 menit</p></header>
 <div class="bar"><b>Soal ujian</b><button id="zb" type="button">Huruf: Normal</button></div>
 <main><div class="sheet"><p class="petunjuk">Jawab pertanyaan di bawah ini dengan jujur!</p>
@@ -45,11 +46,11 @@ footer{text-align:center;font-size:.72em;color:#556;padding:6px 10px 26px}
 <div class="li l0"><span class="lb">3.</span><div class="tx">Sebutkan bentuk hukuman pokok (qishash) bagi pembunuhan yang dilakukan secara sengaja! Jelaskan</div></div>
 <div class="li l0"><span class="lb">4.</span><div class="tx">Mengapa Islam sangat melarang tindakan bullying (perundungan), kekerasan fisik, maupun tawuran antar pelajar?</div></div>
 <div class="li l0"><span class="lb">5.</span><div class="tx">Dalam Menjaga Keharmonisan Kehidupan bermasyarakat, kita dianjurkan untuk memiliki sifat toleransi, jelaskan apa itu….</div></div>
-<div class="li l0"><span class="lb">6.</span><div class="tx">Dalam Q.S. Al-Kāfirūn maupun konsep tasāmuh di masyarakat majemuk, prinsip dasar toleransi dalam aqidah dan ibadah kepada umat yang berbeda agama adalah….</div></div>
+<div class="li l0"><span class="lb">6.</span><div class="tx">Dalam Q.S. Ibrahim ayat 7 terdapat konsep bersyukur. Jelaskan pesan apa yang anda mengerti dari ayat ini....</div></div>
 <div class="li l0"><span class="lb">7.</span><div class="tx">Khotib wajib mengikuti rukun khutbah, sebutkan apa saja rukun khutbah….</div></div>
 <div class="li l0"><span class="lb">8.</span><div class="tx">Ada 3 metode berdakwah, sebutkan dan jelaskan….</div></div>
 <div class="li l0"><span class="lb">9.</span><div class="tx">Sebutkan 5 tokoh Islam yang dikenal dunia abad 19 yang berasal dari Indonesia….</div></div>
-<div class="li l0"><span class="lb">10.</span><div class="tx">Siapakah pendiri organisasi Nahdlatul Ulama dan Muhammadiyah….</div></div>
+<div class="li l0"><span class="lb">10.</span><div class="tx">Siapakah pendiri dan tahun berdirinya organisasi Nahdlatul Ulama dan Muhammadiyah....</div></div>
 </div></main>
 <footer>SMA Negeri 3 Jember &middot; Ketuk gambar untuk memperbesar &middot; Kerjakan di kertas.</footer>
 <div id="lb"><button type="button">Tutup</button><img alt=""></div>
@@ -57,4 +58,6 @@ footer{text-align:center;font-size:.72em;color:#556;padding:6px 10px 26px}
 b.onclick=function(){i=(i+1)%3;document.body.className=i?"f"+(i+1):"";b.textContent=l[i];};
 var lb=document.getElementById("lb"),li=lb.querySelector("img");
 document.addEventListener("click",function(e){var t=e.target;if(t.classList&&t.classList.contains("fig")){li.src=t.src;var w=t.classList.contains("wide");var sh=t.classList.contains("shot");var ww=w?"260vw":sh?"230vw":"100%";li.style.width=ww;li.style.minWidth=ww;lb.style.display="block";lb.scrollTop=0;lb.scrollLeft=w?lb.scrollWidth:0}});
-lb.querySelector("button").onclick=function(){lb.style.display="none"};})();</script></body></html>
+lb.querySelector("button").onclick=function(){lb.style.display="none"};
+function fit(){var s=document.querySelector(".sheet");if(!s)return;var sr=s.getBoundingClientRect(),lim=sr.right-10,avail=sr.width-24;document.querySelectorAll(".katex").forEach(function(k){if(k.closest(".katex-display"))return;var r=k.getBoundingClientRect();if(r.right>lim&&r.width>avail*0.6){k.style.fontSize=Math.max(.6,Math.min(1,avail/r.width))+"em"}})}
+window.addEventListener("load",fit);setTimeout(fit,400);})();</script></body></html>

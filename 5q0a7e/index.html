@@ -1,0 +1,104 @@
+<!DOCTYPE html><html lang="id"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex,nofollow">
+<title>Pemantauan Mode Aman</title>
+<style>
+:root{color-scheme:light}*{box-sizing:border-box}
+body{margin:0;background:#eef1f5;color:#111;font-family:Arial,Helvetica,sans-serif;font-size:15px}
+header{background:#1f3a5f;color:#fff;padding:12px 16px}header h1{font-size:1.15em;margin:0}header p{margin:3px 0 0;font-size:.85em;opacity:.9}
+main{max-width:1100px;margin:0 auto;padding:12px}
+.card{background:#fff;border-radius:10px;padding:12px;box-shadow:0 1px 3px rgba(0,0,0,.13);margin-bottom:12px}
+input,select,button{font-size:15px;padding:9px 10px;border:1px solid #9aa5b4;border-radius:7px;background:#fff;color:#111}
+button{background:#1f3a5f;color:#fff;border-color:#1f3a5f;cursor:pointer}button.sec{background:#fff;color:#1f3a5f}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.row>*{margin:0}
+.chips{display:flex;gap:8px;flex-wrap:wrap}.chip{background:#e8edf4;border-radius:9px;padding:8px 12px;min-width:92px}.chip b{display:block;font-size:1.5em;color:#1f3a5f}
+.chip.red{background:#fde7e9}.chip.red b{color:#b00020}.chip.grn{background:#e4f5e8}.chip.grn b{color:#17702e}.chip.gry{background:#eceff3}
+.tw{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:.93em}
+th,td{border-bottom:1px solid #dde3ea;padding:7px 8px;text-align:left;vertical-align:top;white-space:nowrap}th{background:#f3f6fa;position:sticky;top:0}
+td.k{white-space:normal;max-width:300px;color:#556}
+.b{display:inline-block;border-radius:999px;padding:3px 10px;font-weight:bold;font-size:.85em}
+.b.m{background:#e8edf4;color:#1f3a5f}.b.t{background:#b00020;color:#fff}.b.s{background:#e4f5e8;color:#17702e}.b.w{background:#fff1d6;color:#8a5a00}
+tr.lock td{background:#fff0f1}.pel{font-weight:bold}.pel.p{color:#b00020}
+.err{background:#fde7e9;color:#b00020;border-radius:8px;padding:9px 12px;margin-bottom:10px;font-weight:bold}
+.mini{font-size:.82em;color:#556}.hid{display:none!important}
+details summary{cursor:pointer;font-weight:bold;color:#1f3a5f;padding:4px 0}
+.log div{padding:3px 0;border-bottom:1px dotted #dde3ea;font-size:.9em}
+</style></head><body>
+<header><h1>Pemantauan Mode Aman &mdash; SMA Negeri 3 Jember</h1><p>Halaman khusus admin. Jangan dibagikan kepada siswa.</p></header>
+<main>
+<div id="login" class="card" style="max-width:420px;margin:30px auto">
+ <b>Masuk admin</b><p class="mini">Masukkan kunci admin (ADMIN_KEY di Apps Script).</p>
+ <div class="row"><input id="key" type="password" placeholder="Kunci admin" style="flex:1"><button id="go" type="button">Masuk</button></div>
+ <p id="lerr" style="color:#b00020;font-weight:bold;min-height:1.2em"></p>
+</div>
+<div id="dash" class="hid">
+ <div id="err" class="err hid"></div>
+ <div class="card">
+  <div class="row">
+   <select id="f-paket"><option value="">Semua paket</option></select>
+   <select id="f-kelas"><option value="">Semua kelas</option></select>
+   <input id="f-cari" type="text" placeholder="Cari nama..." style="flex:1;min-width:120px">
+   <label class="mini"><input id="f-masalah" type="checkbox"> hanya bermasalah</label>
+   <button id="seg" class="sec" type="button">Muat ulang</button>
+   <button id="keluar" class="sec" type="button">Keluar</button>
+  </div>
+  <p class="mini" style="margin:8px 0 0">Diperbarui: <b id="upd">-</b> &middot; otomatis tiap 10 detik &middot; <span id="cnt"></span></p>
+ </div>
+ <div class="card"><div class="chips" id="chips"></div></div>
+ <div class="card"><div class="tw"><table><thead><tr><th>Kelas</th><th>Nama</th><th>Paket</th><th>Status</th><th>Pelanggaran</th><th>Terakhir</th><th>Keterangan</th></tr></thead><tbody id="tb"></tbody></table></div><p id="kosong" class="mini hid">Belum ada data yang cocok.</p></div>
+ <div class="card hid" id="belumcard"><details open><summary id="belumjudul"></summary><div id="belum" class="mini"></div></details></div>
+ <div class="card"><details><summary>Peristiwa terbaru</summary><div class="log" id="lg"></div></details></div>
+</div>
+</main>
+<script src="../config.js"></script>
+<script>
+(function(){
+"use strict";
+var API=window.PSAS_API&&window.PSAS_API.url?window.PSAS_API:null,KEY=null,DATA=null,timer=null,KS="psas_admin_key";
+function $(i){return document.getElementById(i)}
+function esc(t){return String(t==null?"":t).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function show(i,on){$(i).classList[on?"remove":"add"]("hid")}
+function jsonp(params,ok,fail){
+ if(!API){fail("Alamat server belum diisi di config.js");return}
+ var name="__a"+Date.now().toString(36)+Math.floor(Math.random()*1e9).toString(36),s=document.createElement("script"),done=false,tm;
+ function end(){done=true;clearTimeout(tm);try{delete window[name]}catch(e){window[name]=undefined}if(s.parentNode)s.parentNode.removeChild(s)}
+ window[name]=function(d){if(done)return;end();ok(d)};
+ s.onerror=function(){if(done)return;end();fail("Tidak dapat menghubungi server")};
+ tm=setTimeout(function(){if(done)return;end();fail("Server terlalu lama menjawab")},15000);
+ var a=[];params.callback=name;for(var k in params)a.push(encodeURIComponent(k)+"="+encodeURIComponent(params[k]));
+ s.src=API.url+(API.url.indexOf("?")>-1?"&":"?")+a.join("&");document.head.appendChild(s)}
+function ambil(first){
+ jsonp({a:"admin",k:KEY,paket:$("f-paket").value},function(d){
+  if(!d||!d.ok){if(d&&(d.err==="key"||d.err==="token")){keluar("Kunci admin salah.");return}err("Server: "+(d&&d.err||"galat"));return}
+  err("");DATA=d;if(first){show("login",false);show("dash",true);try{sessionStorage.setItem(KS,KEY)}catch(e){}}draw()},
+ function(m){if(first){$("lerr").textContent=m;return}err(m+". Mencoba lagi...")})}
+function err(m){var e=$("err");e.textContent=m||"";show("err",!!m)}
+function keluar(msg){clearInterval(timer);KEY=null;try{sessionStorage.removeItem(KS)}catch(e){}show("dash",false);show("login",true);$("lerr").textContent=msg||"";$("key").value=""}
+function opt(sel,vals,label){var cur=sel.value,h='<option value="">'+label+'</option>'+vals.map(function(v){return"<option>"+esc(v)+"</option>"}).join("");if(sel.getAttribute("data-h")!==h){sel.innerHTML=h;sel.setAttribute("data-h",h);sel.value=cur}}
+function nat(a,b){return String(a).localeCompare(String(b),"id",{numeric:true})}
+function draw(){
+ var d=DATA,rows=d.status.slice();
+ opt($("f-paket"),d.pakets,"Semua paket");
+ opt($("f-kelas"),Array.from(new Set(rows.map(function(r){return r.kelas}))).sort(nat),"Semua kelas");
+ var fk=$("f-kelas").value,fc=$("f-cari").value.trim().toLowerCase(),fm=$("f-masalah").checked;
+ rows=rows.filter(function(r){return(!fk||r.kelas===fk)&&(!fc||r.nama.toLowerCase().indexOf(fc)>-1)&&(!fm||r.status==="TERKUNCI"||r.pel>0)});
+ rows.sort(function(a,b){var ta=a.status==="TERKUNCI"?0:1,tb=b.status==="TERKUNCI"?0:1;return ta-tb||b.pel-a.pel||nat(a.kelas,b.kelas)||a.nama.localeCompare(b.nama,"id")});
+ var all=d.status,cn=function(f){return all.filter(f).length},tot=all.reduce(function(s,r){return s+r.pel},0);
+ var ch=[["Tercatat",all.length,""],["Mengerjakan",cn(function(r){return r.status==="Mengerjakan"}),""],["TERKUNCI",cn(function(r){return r.status==="TERKUNCI"}),"red"],["Selesai",cn(function(r){return r.status==="Selesai"||r.status==="Waktu habis"}),"grn"],["Total pelanggaran",tot,"red"]];
+ if($("f-paket").value)ch.push(["Belum masuk",d.belum.length,"gry"]);
+ $("chips").innerHTML=ch.map(function(c){return'<div class="chip '+c[2]+'"><b>'+c[1]+"</b>"+c[0]+"</div>"}).join("");
+ $("tb").innerHTML=rows.map(function(r){var cl=r.status==="TERKUNCI"?"t":r.status==="Mengerjakan"?"m":r.status==="Selesai"?"s":"w";
+  return'<tr class="'+(r.status==="TERKUNCI"?"lock":"")+'"><td>'+esc(r.kelas)+"</td><td>"+esc(r.nama)+"</td><td>"+esc(r.paket)+'</td><td><span class="b '+cl+'">'+esc(r.status)+'</span></td><td class="pel'+(r.pel?" p":"")+'">'+r.pel+"</td><td>"+esc(r.t)+'</td><td class="k">'+esc(r.ket)+"</td></tr>"}).join("");
+ show("kosong",!rows.length);$("cnt").textContent=rows.length+" dari "+all.length+" siswa ditampilkan";
+ $("upd").textContent=d.now;
+ var pk=$("f-paket").value;show("belumcard",!!pk);
+ if(pk){var by={};d.belum.forEach(function(r){(by[r.kelas]=by[r.kelas]||[]).push(r.nama)});
+  $("belumjudul").textContent="Belum masuk paket \""+pk+"\" ("+d.belum.length+" siswa)";
+  $("belum").innerHTML=Object.keys(by).sort(nat).map(function(k){return"<p><b>"+esc(k)+" ("+by[k].length+"):</b> "+esc(by[k].join(", "))+"</p>"}).join("")||"Semua siswa sudah masuk."}
+ $("lg").innerHTML=d.log.map(function(l){return"<div><b>"+esc(l.t)+"</b> &middot; "+esc(l.kelas)+" &middot; "+esc(l.nama)+" &middot; <b>"+esc(l.ev)+"</b> "+esc(l.d)+' <span class="mini">'+esc(l.dev)+"</span></div>"}).join("")||"Belum ada peristiwa."}
+function masuk(){KEY=$("key").value.trim();if(!KEY)return;$("lerr").textContent="Memeriksa...";ambil(true);clearInterval(timer);timer=setInterval(function(){if(KEY)ambil(false)},10000)}
+$("go").onclick=masuk;$("key").onkeydown=function(e){if(e.key==="Enter")masuk()};
+$("seg").onclick=function(){ambil(false)};$("keluar").onclick=function(){keluar("")};
+$("f-paket").onchange=function(){ambil(false)};$("f-kelas").onchange=draw;$("f-cari").oninput=draw;$("f-masalah").onchange=draw;
+try{var k0=sessionStorage.getItem(KS);if(k0){$("key").value=k0;masuk()}}catch(e){}
+})();
+</script></body></html>
